@@ -47,13 +47,10 @@ func readYaml(file string) []map[string]interface{} {
 }
 
 func main() {
-	kingpin.Version("v0.1")
+	kingpin.Version("v0.1.1")
 	kingpin.Parse()
 	data1 := readYaml(*path1)
 	data2 := readYaml(*path2)
-
-	fmt.Println(data1)
-	fmt.Println(data2)
 
 	if len(data1) > len(data2) {
 		for i := range data1 {
@@ -112,10 +109,7 @@ func getDifferences(data1, data2 map[string]interface{}, filename1, filename2 st
 		val2, exists := data2[key]
 
 		if !exists {
-			differences[key] = map[string]interface{}{
-				filename1: val1,
-				filename2: "(not present)",
-			}
+			continue
 		} else {
 			// Recursive check for nested maps
 			if val1Map, ok1 := val1.(map[string]interface{}); ok1 {
@@ -126,17 +120,11 @@ func getDifferences(data1, data2 map[string]interface{}, filename1, filename2 st
 					}
 				} else if val1 != val2 {
 					// Different value for the same key
-					differences[key] = map[string]interface{}{
-						filename1: val1,
-						filename2: val2,
-					}
+					differences[key] = val2
 				}
 			} else if val1 != val2 {
 				// Different value for the same key
-				differences[key] = map[string]interface{}{
-					filename1: val1,
-					filename2: val2,
-				}
+				differences[key] = val2
 			}
 		}
 	}
@@ -144,10 +132,7 @@ func getDifferences(data1, data2 map[string]interface{}, filename1, filename2 st
 	// Check keys in data2 that are not present in data1
 	for key, val2 := range data2 {
 		if _, exists := data1[key]; !exists {
-			differences[key] = map[string]interface{}{
-				filename1: "(not present)",
-				filename2: val2,
-			}
+			differences[key] = val2
 		}
 	}
 
